@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Canvas with Brush and Text</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -12,7 +13,21 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    #e3f2fd,
+                    #e3f2fd 10px,
+                    #e9f5ff00 10px,
+                    #bbdefb00 20px
+                );
+            font-family: 'Roboto', sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
         }
         .canvas-container {
             position: relative;
@@ -21,8 +36,10 @@
         canvas {
             border: 1px solid #000;
             background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        .controls {
+        .controls, .undo-redo-container {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
@@ -30,16 +47,42 @@
         }
         .tool-btn, .icon-btn {
             margin: 5px;
+            padding: 10px 15px;
+            font-size: 14px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        .tool-btn:hover, .icon-btn:hover {
+            background-color: #1565c0;
+        }
+        input[type="color"], input[type="number"], select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
+    <h1 style="margin: 0; padding: 20px; font-size: 24px; color: #333; text-align: left; position: absolute; top: 0; left: 20px;">Canvas for Creativity: Write & Draw!</h1>
     <div class="undo-redo-container">
-        <button id="undo-btn" class="icon-btn">&#8592;</button>
-        <button id="redo-btn" class="icon-btn">&#8594;</button>
+        <button id="undo-btn" class="icon-btn">&#8592; Undo</button>
+        <button id="redo-btn" class="icon-btn">&#8594; Redo</button>
+        <button id="save-btn" class="icon-btn">Save</button>
     </div>
     <div class="canvas-container">
-        <canvas id="myCanvas" width="1000" height="400"></canvas>
+        <canvas id="myCanvas" width="1500" height="400"></canvas>
         <input type="text" id="canvas-input" style="position:absolute; display:none; z-index:10;" />
     </div>
     
@@ -47,7 +90,10 @@
         <button id="brush-tool-btn" class="tool-btn">Brush</button>
         <button id="text-tool-btn" class="tool-btn">Text</button>
         <button id="select-tool-btn" class="tool-btn">Select</button>
-        <input type="color" id="color-picker" value="#000000" style="width: 30px;height: 30px;">
+        <!-- Color Picker with Custom Styles -->
+        <div style="background-color: black; border-radius: 5px; padding: 5px; display: flex;">
+            <input type="color" id="color-picker" value="#000000" style="width: 30px; height: 30px; border: none; outline: none; background-color: transparent;">
+        </div>        
         
         <!-- Brush Style Selector -->
         <select id="brush-style">
