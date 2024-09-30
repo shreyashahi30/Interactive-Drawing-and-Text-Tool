@@ -14,19 +14,28 @@ const boldCheckbox = document.getElementById('bold-checkbox');
 const italicCheckbox = document.getElementById('italic-checkbox');
 const underlineCheckbox = document.getElementById('underline-checkbox');
 const brushStyleSelect = document.getElementById('brush-style');
+const saveBtn = document.getElementById('save-btn');
 
-let tool = 'text'; // Default tool is text
+let tool = 'text'; 
 let isDrawing = false;
 let isDragging = false;
-let selectedObject = null; // Selected text object
-let selectedStroke = null; // Selected brush stroke
-let offsetX = 0, offsetY = 0; // Offset for dragging
-let textArray = []; // Array to store text objects
-let brushArray = []; // Array to store brush strokes
+let selectedObject = null; 
+let selectedStroke = null; 
+let offsetX = 0, offsetY = 0; 
+let textArray = []; 
+let brushArray = []; 
 let undoStack = [];
 let redoStack = [];
 
-// Switch between tools
+
+function getFontStyle() {
+    let style = "";
+    if (boldCheckbox.checked) style += "bold ";
+    if (italicCheckbox.checked) style += "italic ";
+    return style;
+}
+
+
 brushToolBtn.addEventListener('click', () => {
     tool = 'brush';
     canvas.style.cursor = 'crosshair';
@@ -39,15 +48,15 @@ textToolBtn.addEventListener('click', () => {
 
 selectToolBtn.addEventListener('click', () => {
     tool = 'select';
-    canvas.style.cursor = 'default'; // Change cursor to default when selecting
+    canvas.style.cursor = 'default'; 
 });
 
-// Allowing text input to be shown at click position
+
 canvas.addEventListener('mousedown', (e) => {
     const mousePos = { x: e.offsetX, y: e.offsetY };
 
     if (tool === 'text') {
-        // Show prompt for text input at the click position
+        
         const textValue = prompt("Enter your text:");
 
         if (textValue) {
@@ -63,29 +72,27 @@ canvas.addEventListener('mousedown', (e) => {
             };
             textArray.push(newText);
             saveState();
-            redrawCanvas();
+            redrawCanvas(); 
         }
     } else if (tool === 'select') {
-        // Check for text selection
         const selectedIndex = findObjectAtPosition(mousePos);
         if (selectedIndex !== null) {
-            selectedObject = textArray[selectedIndex]; // Save the selected text object
+            selectedObject = textArray[selectedIndex]; 
             isDragging = true;
             offsetX = mousePos.x - selectedObject.x;
             offsetY = mousePos.y - selectedObject.y;
-            canvas.style.cursor = 'move'; // Change cursor while dragging
+            canvas.style.cursor = 'move'; 
         } else {
-            // Check for brush stroke selection
             const selectedStrokeIndex = findBrushStrokeAtPosition(mousePos);
             if (selectedStrokeIndex !== null) {
-                selectedStroke = brushArray[selectedStrokeIndex]; // Save the selected brush stroke
+                selectedStroke = brushArray[selectedStrokeIndex]; 
                 isDragging = true;
-                canvas.style.cursor = 'move'; // Change cursor while dragging
+                canvas.style.cursor = 'move'; 
             }
         }
     } else if (tool === 'brush') {
         isDrawing = true;
-        brushArray.push([{ x: e.offsetX, y: e.offsetY }]); // Start new brush stroke
+        brushArray.push([{ x: e.offsetX, y: e.offsetY }]); 
     }
 });
 
@@ -98,37 +105,34 @@ canvas.addEventListener('mousemove', (e) => {
         redrawCanvas();
     } else if (isDragging) {
         if (selectedObject) {
-            // Dragging text object
             selectedObject.x = mousePos.x - offsetX;
             selectedObject.y = mousePos.y - offsetY;
         } else if (selectedStroke) {
-            // Dragging the entire brush stroke
             const dx = mousePos.x - selectedStroke[0].x;
             const dy = mousePos.y - selectedStroke[0].y;
             for (let point of selectedStroke) {
                 point.x += dx;
                 point.y += dy;
             }
-            selectedStroke[0].x = mousePos.x; // Update starting point to current mouse position
+            selectedStroke[0].x = mousePos.x; 
         }
-        redrawCanvas(); // Redraw after dragging
+        redrawCanvas(); 
     }
 });
 
 canvas.addEventListener('mouseup', () => {
     isDrawing = false;
     isDragging = false;
-    selectedObject = null; // Reset selectedObject when dragging ends
-    selectedStroke = null; // Reset selectedStroke when dragging ends
+    selectedObject = null;
+    selectedStroke = null; 
     if (tool === 'brush') {
-        saveState(); // Save the state after drawing
+        saveState(); 
     }
 });
 
-// Save the current state to allow undo/redo
 function saveState() {
     undoStack.push({ brush: JSON.parse(JSON.stringify(brushArray)), text: JSON.parse(JSON.stringify(textArray)) });
-    redoStack = []; // Clear redo stack on new action
+    redoStack = []; 
 }
 
 undoBtn.addEventListener('click', () => {
@@ -153,37 +157,37 @@ redoBtn.addEventListener('click', () => {
     }
 });
 
-// Function to find if a text object is at the clicked position
+
 function findObjectAtPosition(pos) {
     for (let i = 0; i < textArray.length; i++) {
         const text = textArray[i];
         ctx.font = text.font;
         const metrics = ctx.measureText(text.text);
         if (pos.x > text.x && pos.x < text.x + metrics.width && pos.y > text.y - parseInt(fontSize.value) && pos.y < text.y) {
-            return i; // Return the index of the text
+            return i; 
         }
     }
-    return null; // Return null if no text found
+    return null;
 }
 
-// Function to find if a brush stroke is at the clicked position
+
 function findBrushStrokeAtPosition(pos) {
     for (let i = 0; i < brushArray.length; i++) {
         const stroke = brushArray[i];
         for (let j = 0; j < stroke.length; j++) {
             const point = stroke[j];
             if (Math.abs(point.x - pos.x) < 5 && Math.abs(point.y - pos.y) < 5) {
-                return i; // Return index of the stroke
+                return i; 
             }
         }
     }
-    return null; // Return null if no stroke found
+    return null; 
 }
 
 function redrawCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height); 
 
-    // Draw brush strokes
+
     for (let brush of brushArray) {
         ctx.beginPath();
         for (let i = 0; i < brush.length; i++) {
@@ -196,45 +200,48 @@ function redrawCanvas() {
         ctx.strokeStyle = colorPickerInput.value;
         ctx.lineWidth = 2;
 
-        // Set stroke style based on the selected option
+
         switch (brushStyleSelect.value) {
             case 'dotted':
-                ctx.setLineDash([2, 2]); // Dotted line
+                ctx.setLineDash([2, 2]); 
                 break;
             case 'dashed':
-                ctx.setLineDash([10, 5]); // Dashed line
+                ctx.setLineDash([10, 5]); 
                 break;
             default:
-                ctx.setLineDash([]); // Solid line
+                ctx.setLineDash([]); 
+                break;
         }
-
+        
         ctx.stroke();
+        ctx.closePath();
     }
 
-    // Draw text
+
     for (let text of textArray) {
         ctx.font = text.font;
         ctx.fillStyle = text.color;
+
+
         ctx.fillText(text.text, text.x, text.y);
 
-        // Draw underline if checked
+
         if (text.isUnderlined) {
             const metrics = ctx.measureText(text.text);
-            const underlineY = text.y + 2; // Adjust for positioning the underline
             ctx.beginPath();
-            ctx.moveTo(text.x, underlineY);
-            ctx.lineTo(text.x + metrics.width, underlineY);
-            ctx.strokeStyle = text.color; // Use the same color for the underline
-            ctx.lineWidth = 2; // Set underline thickness
+            ctx.moveTo(text.x, text.y + 2); 
+            ctx.lineTo(text.x + metrics.width, text.y + 2);
+            ctx.strokeStyle = text.color;
             ctx.stroke();
+            ctx.closePath();
         }
     }
 }
 
-// Font style function
-function getFontStyle() {
-    let fontStyle = '';
-    if (boldCheckbox.checked) fontStyle += 'bold ';
-    if (italicCheckbox.checked) fontStyle += 'italic ';
-    return fontStyle;
-}
+
+saveBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'canvas.png';
+    link.href = canvas.toDataURL();
+    link.click();
+});
