@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,11 @@
     <style>
         body {
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: 
+            background:
                 repeating-linear-gradient(
                     45deg,
                     #e3f2fd,
@@ -23,29 +24,36 @@
                 );
             font-family: 'Roboto', sans-serif;
         }
+
         h1 {
             margin-bottom: 20px;
             font-size: 24px;
             color: #333;
             text-align: center;
         }
+
         .canvas-container {
             position: relative;
             margin-bottom: 20px;
         }
+
         canvas {
             border: 1px solid #000;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        .controls, .undo-redo-container {
+
+        .controls,
+        .undo-redo-container {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             align-items: center;
         }
-        .tool-btn, .icon-btn {
+
+        .tool-btn,
+        .icon-btn {
             margin: 5px;
             padding: 10px 15px;
             font-size: 14px;
@@ -57,14 +65,20 @@
             transition: background-color 0.3s ease;
             box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
         }
-        .tool-btn:hover, .icon-btn:hover {
+
+        .tool-btn:hover,
+        .icon-btn:hover {
             background-color: #1565c0;
         }
-        input[type="color"], input[type="number"], select {
+
+        input[type="color"],
+        input[type="number"],
+        select {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
         input[type="text"] {
             padding: 10px;
             border: 1px solid #ccc;
@@ -74,33 +88,48 @@
         }
     </style>
 </head>
+
 <body>
-    <h1 style="margin: 0; padding: 20px; font-size: 24px; color: #333; text-align: left; position: absolute; top: 0; left: 20px;">Canvas for Creativity: Write & Draw!</h1>
+    <h1 style="margin: 0; padding: 20px; font-size: 24px; color: #333; text-align: left; position: absolute; top: 30px; left: 20px;">
+        Canvas for Creativity: Write & Draw!
+    </h1>
+
     <div class="undo-redo-container">
         <button id="undo-btn" class="icon-btn">&#8592; Undo</button>
         <button id="redo-btn" class="icon-btn">&#8594; Redo</button>
         <button id="save-btn" class="icon-btn">Save</button>
     </div>
+
     <div class="canvas-container">
         <canvas id="myCanvas" width="1500" height="400"></canvas>
         <input type="text" id="canvas-input" style="position:absolute; display:none; z-index:10;" />
     </div>
-    
+
     <div class="controls">
         <button id="brush-tool-btn" class="tool-btn">Brush</button>
         <button id="text-tool-btn" class="tool-btn">Text</button>
         <button id="select-tool-btn" class="tool-btn">Select</button>
-        
-    <div style="background-color: black; border-radius: 5px; padding: 5px; display: flex;">
-        <input type="color" id="color-picker" value="#000000" style="width: 30px; height: 30px; border: none; outline: none; background-color: transparent;">
-    </div>        
-        
-    <select id="brush-style">
-        <option value="solid">Solid</option>
-        <option value="dotted">Dotted</option>
-        <option value="dashed">Dashed</option>
-    </select>
-        
+
+        <label for="shape-select">Select Shape:</label>
+        <select id="shape-select">
+            <option value="none">None</option>
+            <option value="rectangle">Rectangle</option>
+            <option value="square">Square</option>
+            <option value="circle">Circle</option>
+            <option value="triangle">Triangle</option>
+            <option value="oval">Oval</option>
+        </select>
+
+        <div style="background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); border-radius: 5px; padding: 5px; display: flex;">
+            <input type="color" id="color-picker" value="#000000" style="width: 30px; height: 30px; border: none; outline: none; background-color: transparent;">
+        </div>
+
+        <select id="brush-style">
+            <option value="solid">Solid</option>
+            <option value="dotted">Dotted</option>
+            <option value="dashed">Dashed</option>
+        </select>
+
         <select id="font-family">
             <option value="Arial">Arial</option>
             <option value="Arial Black">Arial Black</option>
@@ -128,7 +157,9 @@
             <option value="Poppins">Poppins (Google Font)</option>
             <option value="Fira Sans">Fira Sans (Google Font)</option>
         </select>
+
         <input type="number" id="font-size" placeholder="Font Size" value="24">
+
         <label>
             <input type="checkbox" id="bold-checkbox"> Bold
         </label>
@@ -139,6 +170,80 @@
             <input type="checkbox" id="underline-checkbox"> Underline
         </label>
     </div>
+
     <script src="script.js"></script>
+    <script>
+        const shapeSelect = document.getElementById('shape-select');
+        let startX, startY;
+        let currentShape = null;
+
+        shapeSelect.addEventListener('change', () => {
+            tool = shapeSelect.value;
+            canvas.style.cursor = tool !== 'none' ? 'crosshair' : 'default';
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const mousePos = { x: e.offsetX, y: e.offsetY };
+            if (tool !== 'none') {
+                startX = mousePos.x;
+                startY = mousePos.y;
+                isDrawing = true;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing && tool !== 'none') {
+                const mousePos = { x: e.offsetX, y: e.offsetY };
+                const width = mousePos.x - startX;
+                const height = mousePos.y - startY;
+
+                currentShape = {
+                    x: startX,
+                    y: startY,
+                    width: tool === 'square' ? Math.min(width, height) : width,
+                    height: tool === 'square' ? Math.min(width, height) : height
+                };
+
+                redrawCanvas();
+
+                ctx.strokeStyle = colorPickerInput.value;
+
+                switch (tool) {
+                    case 'rectangle':
+                    case 'square':
+                        ctx.strokeRect(currentShape.x, currentShape.y, currentShape.width, currentShape.height);
+                        break;
+                    case 'circle':
+                        ctx.beginPath();
+                        const radius = Math.sqrt(currentShape.width * currentShape.width + currentShape.height * currentShape.height);
+                        ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        break;
+                    case 'triangle':
+                        ctx.beginPath();
+                        ctx.moveTo(startX, startY);
+                        ctx.lineTo(startX + currentShape.width, startY + currentShape.height);
+                        ctx.lineTo(startX - currentShape.width, startY + currentShape.height);
+                        ctx.closePath();
+                        ctx.stroke();
+                        break;
+                    case 'oval':
+                        ctx.beginPath();
+                        ctx.ellipse(startX, startY, Math.abs(currentShape.width / 2), Math.abs(currentShape.height / 2), 0, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        break;
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+            if (currentShape) {
+                shapes.push({ ...currentShape, color: colorPickerInput.value });
+                currentShape = null;
+            }
+        });
+    </script>
 </body>
+
 </html>
