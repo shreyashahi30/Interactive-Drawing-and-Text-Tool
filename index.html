@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Canvas with Brush and Text</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .canvas-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .tool-btn, .icon-btn {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="undo-redo-container">
+        <button id="undo-btn" class="icon-btn">&#8592;</button>
+        <button id="redo-btn" class="icon-btn">&#8594;</button>
+    </div>
+    <div class="canvas-container">
+        <canvas id="myCanvas" width="1000" height="400"></canvas>
+        <input type="text" id="canvas-input" style="position:absolute; display:none; z-index:10;" />
+    </div>
+    
+    <div class="controls">
+        <button id="brush-tool-btn" class="tool-btn">Brush</button>
+        <button id="text-tool-btn" class="tool-btn">Text</button>
+        <button id="select-tool-btn" class="tool-btn">Select</button>
+        <input type="color" id="color-picker" value="#000000" style="width: 30px;height: 30px;">
+        
+        <!-- Brush Style Selector -->
+        <select id="brush-style">
+            <option value="solid">Solid</option>
+            <option value="dotted">Dotted</option>
+            <option value="dashed">Dashed</option>
+        </select>
+        
+        <select id="font-family">
+            <option value="Arial">Arial</option>
+            <option value="Arial Black">Arial Black</option>
+            <option value="Arial Narrow">Arial Narrow</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Tahoma">Tahoma</option>
+            <option value="Trebuchet MS">Trebuchet MS</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Palatino Linotype">Palatino Linotype</option>
+            <option value="Book Antiqua">Book Antiqua</option>
+            <option value="Garamond">Garamond</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Lucida Console">Lucida Console</option>
+            <option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+            <option value="Segoe UI">Segoe UI</option>
+            <option value="Comic Sans MS">Comic Sans MS</option>
+            <option value="Impact">Impact</option>
+            <option value="Frank Ruhl Libre">Frank Ruhl Libre</option>
+            <option value="Roboto">Roboto (Google Font)</option>
+            <option value="Open Sans">Open Sans (Google Font)</option>
+            <option value="Lato">Lato (Google Font)</option>
+            <option value="Montserrat">Montserrat (Google Font)</option>
+            <option value="Poppins">Poppins (Google Font)</option>
+            <option value="Fira Sans">Fira Sans (Google Font)</option>
+        </select>
+        <input type="number" id="font-size" placeholder="Font Size" value="24">
+        <label>
+            <input type="checkbox" id="bold-checkbox"> Bold
+        </label>
+        <label>
+            <input type="checkbox" id="italic-checkbox"> Italic
+        </label>
+        <label>
+            <input type="checkbox" id="underline-checkbox"> Underline
+        </label>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
